@@ -143,3 +143,53 @@ Sep 06 20:07:55 vagrant systemd[1]: Started A high performance web server and a 
 ![nginx default page](https://github.com/grathore07/configuring_nginx_on_linux/blob/master/screenshots/nginx_default_page.png)
 
 
+## Important directories in nginx
+1. `/etc/nginx` - This directory hold the configuration for entire nginx installation. Inside this directory you will find the files that control the way the web server runs, along with the files that define the websites being served. The main configuration file is `/etc/nginx/nginx.conf`.
+```
+ls -la /etc/nginx
+
+total 72
+drwxr-xr-x  8 root root 4096 Sep  6 19:29 .
+drwxr-xr-x 96 root root 4096 Sep  6 19:29 ..
+drwxr-xr-x  2 root root 4096 Aug 20 12:46 conf.d
+-rw-r--r--  1 root root 1077 Apr  6  2018 fastcgi.conf
+-rw-r--r--  1 root root 1007 Apr  6  2018 fastcgi_params
+-rw-r--r--  1 root root 2837 Apr  6  2018 koi-utf
+-rw-r--r--  1 root root 2223 Apr  6  2018 koi-win
+-rw-r--r--  1 root root 3957 Apr  6  2018 mime.types
+drwxr-xr-x  2 root root 4096 Aug 20 12:46 modules-available
+drwxr-xr-x  2 root root 4096 Sep  6 19:29 modules-enabled
+-rw-r--r--  1 root root 1482 Apr  6  2018 nginx.conf
+-rw-r--r--  1 root root  180 Apr  6  2018 proxy_params
+-rw-r--r--  1 root root  636 Apr  6  2018 scgi_params
+drwxr-xr-x  2 root root 4096 Sep  6 19:29 sites-available
+drwxr-xr-x  2 root root 4096 Sep  6 19:29 sites-enabled
+drwxr-xr-x  2 root root 4096 Sep  6 19:29 snippets
+-rw-r--r--  1 root root  664 Apr  6  2018 uwsgi_params
+-rw-r--r--  1 root root 3071 Apr  6  2018 win-utf
+```
+
+2. Inside `/etc/nginx` we also find directories `conf.d`, `sites-available`, `sites-enabled`. These locations are where we store server configuration files.
+> nginx server configuration files are very similar in function to Apache's vhost files. In fact you will see the term vhost and server configuration used interchangeably.
+
+3. An example configuration is stored in `/etc/nginx/sites-available/default` file. This configuration sets up the `welcome to nginx` page that we use to test nginx installation is running correctly. 
+
+4. `/var/log/nginx` contains error and access logs.
+```
+ls -la /var/log/nginx
+
+total 16
+drwxr-xr-x 2 root     adm    4096 Sep  6 19:29 .
+drwxrwxr-x 9 root     syslog 4096 Sep  6 20:07 ..
+-rw-r----- 1 www-data adm     740 Sep  7 06:22 access.log
+-rw-r----- 1 www-data adm     126 Sep  6 20:08 error.log
+```
+
+`access.log` records any accesses that web server has encountered.
+`error.log` records any errors that web server has encountered.
+
+5. `/var/www` stores the actual files that get served to a client, including html, images, and other documents. The default directory for this is `/var/www/html`. However, as we create and define new server configurations in vhost, we will be creating our own direcotries in `/var/wwww` to accomodate files that get served.
+
+
+
+
