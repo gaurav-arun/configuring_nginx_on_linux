@@ -617,3 +617,45 @@ tail -f /var/logs/nginx/*.log
 ```
 
 6. Google it. Stackoverflow it. Ask an Expert.
+
+## Configure HTTPS
+### Create an SSL certificate and key
+1. Create a key a named `nginx.key` and a x509 certificate named `nginx.cert`. 
+```
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/nginx.key -out /etc/ssl/certs/nginx.crt
+```
+Fill in the details as necessary. Adding `-batch` flag at the end removes the prompt for additional info.
+The certificate can be public since the server uses the certificate to identify itself over https. The key needs to stay private as it will be used to encrypt the traffic.
+
+### Install SSL certificate on nginx
+1. The first thing we need to do is to force all traffic to be served using `https`. We will do this by creating a new default server that listens on `port 80`. Create a new `server` block in vhost file - `/etc/nginx/conf.d/wisdompetmed.conf`. We do not need a `root` directive for this block as we are redirecting all traffic to https with a `return` directive.
+```
+server {
+  listen 80 default_server;
+  return 301 https://$server_addr$request_uri;
+}
+```
+Any request that comes to `port 80` will get permanent redirect to https by response code `301` to the address specified as second argument. 
+
+2. Now we need to update our old server block to listen on `port 443`. We also need to add the `ssl` directive to this block to tell nginx to encrypt the traffic served on this port. Just because we configure nginx to listen on `port 443`, it does'nt configure the SSL automatically. That's why we have to include `ssl` directive. We also need to add `ssl_certificate_key` and `ssl_certificate` directives along with their paths.
+
+```
+server {
+  listen 443 ssl default_server;
+  ssl_certificate /etc/ssl/certs/nginx.crt;
+  ssl_certificate_key /etc/ssl/private/nginx.key;
+  ...
+  ...
+}
+```
+3. Test the changes in configuration file.
+```
+nginx -t
+```
+
+4. Reload the configuration file to take effect.
+```
+systemctl reload nginx
+```
+
+5. Reloading the page in the browser will show a warning because we are using a self signed certificate. But now all the requests are being served on https. Bingo!
