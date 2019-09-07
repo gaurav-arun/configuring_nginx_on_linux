@@ -188,8 +188,36 @@ drwxrwxr-x 9 root     syslog 4096 Sep  6 20:07 ..
 `access.log` records any accesses that web server has encountered.
 `error.log` records any errors that web server has encountered.
 
-5. `/var/www` stores the actual files that get served to a client, including html, images, and other documents. The default directory for this is `/var/www/html`. However, as we create and define new server configurations in vhost, we will be creating our own direcotries in `/var/wwww` to accomodate files that get served.
+5. `/var/www` stores the actual files that get served to a client, including html, images, and other documents. The default directory for this is `/var/www/html`. However, as we create and define new server configurations in vhost, we will be creating our own direcotries in `/var/www` to accomodate files that get served.
 
+## nginx CLI
+1. `sudo systemctl status nginx`
+2. `sudo systemctl [start|stop] nginx` - commands to start/stop nginx.
+3. `sudo systemctl is-active nginx` - tells if nginx is currently running.
+```
+sudo systemctl is-active nginx
 
+active
+```
+4. `sudo systemctl reload nginx` - reload nginx
+5. `nginx -h`
+```
+nginx -h
 
+nginx version: nginx/1.14.0 (Ubuntu)
+Usage: nginx [-?hvVtTq] [-s signal] [-c filename] [-p prefix] [-g directives]
 
+Options:
+  -?,-h         : this help
+  -v            : show version and exit
+  -V            : show version and configure options then exit
+  -t            : test configuration and exit
+  -T            : test configuration, dump it and exit
+  -q            : suppress non-error messages during configuration testing
+  -s signal     : send signal to a master process: stop, quit, reopen, reload
+  -p prefix     : set prefix path (default: /usr/share/nginx/)
+  -c filename   : set configuration file (default: /etc/nginx/nginx.conf)
+  -g directives : set global directives out of configuration file
+```
+6. `nginx -t` - test if nginx configuration is good. It also warns the user if there is any syntactical errors.
+7. `nginx -T | less` - test if nginx configuration is good, and dump it to stdout. We can use pager like `less` to see the output page by page.
