@@ -336,7 +336,7 @@ lrwxrwxrwx 1 root root   34 Sep  6 19:29 default -> /etc/nginx/sites-available/d
 ```
 **We will be using `conf.d` directory for all our configuration files.**
 
-## Configure a virtual host
+## Configure virtual host - Part 1
 Let's create our first server configuration.
 1. Swith to `root` to avoid entering sudo everytime.
 ```
@@ -421,3 +421,32 @@ echo "Website coming soon" > /var/www/wisdompetmed.local/index.html
 ```
 11. Open the browser on your host machince and go to `http://localhost:8000`. NGINX should serve new `index.html` file with content `Website coming soon`.
 ![index.html](https://github.com/grathore07/configuring_nginx_on_linux/blob/master/screenshots/testing_virtualhost_config_1.png)
+
+## Configure virtual host - Part 2
+1. Let's add few more directives to `wisdompetmed.local.conf` file.
+```
+server {
+  listen 80 default_server;
+  server_name wisdompetmed.local www.wisdompetmed.local;
+  index index.html index.htm index.php;
+  root /var/www/wisodmpetmed.local;
+}
+```
+- `default_server` : NGINX can server multiple sites from the same IP address. We can use the `default_server` statement to tell nginx as default configuration if no other configuration match the name of the site being requested as mentioned in `server_name`
+
+- `server_name` : If you are familiar with Apache vhost configuration, this is similar to setting up a name-based vhost. By including the server name `wisdompetmed.local` and `www.wisdompetmed.local`, we let nginx know which sites this server configuration applies to. Otherwise, if we were serving multiple sites from the same IP address, nginx might server the wrong content.
+> More info on [request_processing.html](https://nginx.org/en/docs/http/request_processing.html)
+
+- `index` : This tells nginx what file to use when it responds to a request. It searches and returns the first match in the list provided.
+
+2. Test the configuration changes.
+```
+nginx -t
+```
+3. Reload the new configuration.
+```
+systemctl reload nginx
+curl localhost
+
+Website coming soon
+```
