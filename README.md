@@ -470,7 +470,7 @@ systemctl reload nginx
 ```
 
 ## Configure locations and error in configuration file
-Add location directives and error directives to `/etc/nginx/conf.d/wisdompetmed.local.conf`
+1. Add location directives and error directives to `/etc/nginx/conf.d/wisdompetmed.local.conf`
 ```
 server {
     listen 80 default_server;
@@ -507,3 +507,113 @@ server {
     }
 }
 ```
+2. Reload nginx configuration.
+```
+systemctl reload nginx
+```
+## Configure logs
+1. Add logging configuration for server and location context
+```
+server {
+    listen 80 default_server;
+
+    root /var/www/wisdompetmed.local;
+
+    server_name wisdompetmed.local www.wisdompetmed.local;
+
+    index index.html index.htm index.php;
+    
+    access_log /var/log/nginx/wisdompetmed.local.access.log;
+    error_log /var/log/nginx/wisdompetmed.local.error.log;
+    
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        try_files $uri $uri/ =404;
+    }
+
+    location /images/ {
+        # Allow the contents of the /image folder to be listed
+        autoindex on;
+	
+	# For demonstrating that access and error in this folder
+	# can be logged separately
+	access_log /var/log/nginx/wisdompetmed.local.images.access.log;
+	error_log /var/log/nginx/wisdompetmed.local.images.error.log;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        internal;
+    }
+    
+    location = /500 {
+        fastcgi_pass unix:/this/will/fail;
+    }
+}
+```
+2. Test the configuration changes
+```
+nginx -t
+```
+3. Reload the configuration
+```
+systemctl reload nginx
+```
+4. Test if logs are going into right files.
+```
+for i in {1..10}; do curl localhost > /dev/null; done
+```
+Now, if we look into the access logs for wisdompetmet.local, we will find some new access logs.
+
+Similarly,
+
+```
+for i in {1..10}; do curl localhost/images/ > /dev/null; done
+```
+Now, if we look into the access logs for wisdompetmet.local.images, we will find some new access logs.
+
+## Troubleshooting nginx
+1. Catch configuration errors using. Helps us identify typo in the configuration file(s). 
+```
+nginx -t
+```
+2. Check for typos in root and server name directives. Sometimes these typos may not be flagged by `nginx -t`.
+```
+#Should be html, not htm1
+root /var/www/htm1
+#Should be www.example.com
+server_name example.com www.examples.com
+```
+3. If site cannot be reached, make sure nginx is running and new configuration has taken effect.
+```
+systemctl status nginx
+systemctl reload nginx
+```
+4. If nginx is running, Verify that standart ports for http and https are open
+```
+sudo lsof -P -n -i :80 -i :443 | grep LISTEN
+
+nginx   987     root    6u  IPv4  18895      0t0  TCP *:80 (LISTEN)
+nginx   989 www-data    6u  IPv4  18895      0t0  TCP *:80 (LISTEN)
+```
+Another way,
+```
+sudo netstat -plan | grep nginx
+
+tcp        0      0 0.0.0.0:80              0.0.0.0:*               LISTEN      987/nginx: master p 
+unix  3      [ ]         STREAM     CONNECTED     18914    987/nginx: master p  
+unix  3      [ ]         STREAM     CONNECTED     18913    987/nginx: master p 
+```
+
+5. If configuration is good and nginx up, running and listening on right ports, we can tail the logs.
+```
+tail -f /var/logs/nginx/*.log
+```
+
+6. Google it. Stackoverflow it. Ask an Expert.
