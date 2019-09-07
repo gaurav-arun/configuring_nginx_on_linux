@@ -450,3 +450,60 @@ curl localhost
 
 Website coming soon
 ```
+
+## Configure permissions on root directory
+1. Extract and place the demo site under `/var/www/wisdompetmed.local` directory.
+```
+mkdir /var/www/wisdompetmed.local
+unzip -o /vagrant/Wisdom_Pet_Medicine_responsive_website_LYNDA_12773.zip -d /var/www/wisdompetmed.local
+```
+2. Adjust the permission on files and folders under `wisdompetmed.local` directory.
+Following commands set the permission on every file to be writable by root and readable by everyone else and on every directory such that root has all permissions but everyone else has read and execute permissions.
+```
+find /var/www/wisdompetmed.local -type f -exec chmod 644 {} \; -print
+find /var/www/wisdompetmed.local -type d -exec chmod 755 {} \; -print
+```
+
+3. Load the configuration
+```
+systemctl reload nginx
+```
+
+## Configure locations and error in configuration file
+Add location directives and error directives to `/etc/nginx/conf.d/wisdompetmed.local.conf`
+```
+server {
+    listen 80 default_server;
+
+    root /var/www/wisdompetmed.local;
+
+    server_name wisdompetmed.local www.wisdompetmed.local;
+
+    index index.html index.htm index.php;
+
+    location / {
+        # First attempt to serve request as file, then
+        # as directory, then fall back to displaying a 404.
+        try_files $uri $uri/ =404;
+    }
+
+    location /images/ {
+        # Allow the contents of the /image folder to be listed
+        autoindex on;
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+        internal;
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        internal;
+    }
+    
+    location = /500 {
+        fastcgi_pass unix:/this/will/fail;
+    }
+}
+```
