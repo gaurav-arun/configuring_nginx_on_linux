@@ -335,3 +335,89 @@ drwxr-xr-x 8 root root 4096 Sep  6 19:29 ..
 lrwxrwxrwx 1 root root   34 Sep  6 19:29 default -> /etc/nginx/sites-available/default
 ```
 **We will be using `conf.d` directory for all our configuration files.**
+
+## Configure a virtual host
+Let's create our first server configuration.
+1. Swith to `root` to avoid entering sudo everytime.
+```
+sudo su -
+```
+2.`cd /etc/nginx/sites-enabled/`
+```
+ls -la
+
+total 8
+drwxr-xr-x 2 root root 4096 Sep  6 19:29 .
+drwxr-xr-x 8 root root 4096 Sep  6 19:29 ..
+lrwxrwxrwx 1 root root   34 Sep  6 19:29 default -> /etc/nginx/sites-available/default
+```
+3. Remove the symlink to default configuration using `unlink default`.
+> The `default` configuration file will still be available in `/etc/nginx/sites-available`. we are simply removing the link from `/etc/nginx/sites-enabled` directory.
+
+```
+ls -la 
+
+total 8
+drwxr-xr-x 2 root root 4096 Sep  7 08:00 .
+drwxr-xr-x 8 root root 4096 Sep  6 19:29 ..
+```
+4. Now we need to create the configuration file that will hold the configuration for our site. We will be storing our configurations in `/etc/nginx/conf.d/` directory. We will be setting up a simple site for a veterinary clinic called wisdom pet medicine.And our site will be called `wisdompetmed.local`. 
+5. Create a configuration file in `conf.d` directory.
+```
+nano /etc/nginx/conf.d/wisdompetmed.local.conf
+```
+Naming the configuration file same as the site makes things easier to manage. The `.conf` extension is important so that vhost configuration gets picked up when nginx configuration is reloaded.
+6.`nano etc/nginx/conf.d/wisdompetmed.local.conf`. Add the following lines:
+```
+server {
+  listen 80;
+  root /var/www/wisdompetmed.local;
+}
+```
+7. Test the configuration.
+```
+nginx -t
+
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+```
+8. Reload nginx configuration.
+```
+systemctl reload nginx
+systemctl status nginx
+
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: configuration file /etc/nginx/nginx.conf test is successful
+root@vagrant:/etc/nginx/sites-enabled# systemctl reload nginx
+root@vagrant:/etc/nginx/sites-enabled# systemctl status nginx
+● nginx.service - A high performance web server and a reverse proxy server
+   Loaded: loaded (/lib/systemd/system/nginx.service; enabled; vendor preset: enabled)
+   Active: active (running) since Fri 2019-09-06 20:07:55 UTC; 12h ago
+     Docs: man:nginx(8)
+  Process: 1857 ExecReload=/usr/sbin/nginx -g daemon on; master_process on; -s reload (code=exited, status=0/SUCCESS)
+  Process: 1085 ExecStart=/usr/sbin/nginx -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+  Process: 654 ExecStartPre=/usr/sbin/nginx -t -q -g daemon on; master_process on; (code=exited, status=0/SUCCESS)
+ Main PID: 1097 (nginx)
+    Tasks: 2 (limit: 1135)
+   CGroup: /system.slice/nginx.service
+           ├─1097 nginx: master process /usr/sbin/nginx -g daemon on; master_process on;
+           └─1858 nginx: worker process
+
+Sep 06 20:07:42 vagrant systemd[1]: Starting A high performance web server and a reverse proxy server...
+Sep 06 20:07:55 vagrant systemd[1]: nginx.service: Failed to parse PID from file /run/nginx.pid: Invalid argument
+Sep 06 20:07:55 vagrant systemd[1]: Started A high performance web server and a reverse proxy server.
+Sep 06 20:08:40 vagrant systemd[1]: Reloading A high performance web server and a reverse proxy server.
+Sep 06 20:08:40 vagrant systemd[1]: Reloaded A high performance web server and a reverse proxy server.
+Sep 07 08:21:24 vagrant systemd[1]: Reloading A high performance web server and a reverse proxy server.
+Sep 07 08:21:24 vagrant systemd[1]: Reloaded A high performance web server and a reverse proxy server.
+```
+9. Now lets create the directory `/var/www/wisdompetmed.local` we used in server config.
+```
+mkdir /var/www/wisdompetmed.local
+```
+10. Place an `index.html` file to test if the configuration is taking effect.
+```
+echo "Website coming soon" > /var/www/wisdompetmed.local/index.html
+```
+11. Open the browser on your host machince and go to `http://localhost:8000`. NGINX should serve new `index.html` file with content `Website coming soon`.
+![index.html](https://github.com/grathore07/configuring_nginx_on_linux/blob/master/screenshots/testing_virtualhost_config_1.png)
