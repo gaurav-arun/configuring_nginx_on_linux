@@ -135,3 +135,11 @@ Sep 06 20:07:42 vagrant systemd[1]: Starting A high performance web server and a
 Sep 06 20:07:55 vagrant systemd[1]: nginx.service: Failed to parse PID from file /
 Sep 06 20:07:55 vagrant systemd[1]: Started A high performance web server and a re
 ```
+
+3. Another way to test that nginx server serving traffic on port 80 is as follows:
+- Open the browser on your host pc.
+- Enter `localhost:8000` in the address bar.
+- You should be able to see the default nginx page.
+![nginx default page](https://github.com/grathore07/configuring_nginx_on_linux/blob/master/screenshots/nginx_default_page.png)
+
+
