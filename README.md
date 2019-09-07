@@ -666,9 +666,21 @@ NGINX can also be configured as a `reverse proxy` or a `load balancer`. Watch th
 A `reverse proxy` applies to the case where there's is **only one server on the backend**. This could be a web application implemented in python or node.js, for example. Or it could be another web server running apache tomcat or even nginx. In these cases nginx is great at simplifying thing that might be harder to implement in other technologies like `ssl termination` and `logging`. NGINX proxies are also good for accelerating the response of backend servers by caching content.
 It also has capabilities to compress data which can reduce the amount of network bandwidth needed to fulfil a request.
 
-Acting as a `load balancer`, NGINX offers the same capabilites as a `reverse proxy`. But instead of only connecting to one server in the backend, a load balancer connects to multiple backend. This configuration is useful for applications that require more than one backend server to handler muliple clients or high volume of traffic, for example. With more than one server, a site can be more reliable. Another feature of `load balancer` is to enable `session persistence`. This is useful when the clients need the same server to accept and respond to all requests.
+Acting as a `load balancer`, NGINX offers the same capabilites as a `reverse proxy`. But instead of only connecting to one server in the backend, a load balancer connects to multiple backend. This configuration is useful for applications that require more than one backend server to handle multiple clients or high volume of traffic, for example. With more than one server, a site can be more reliable. Another feature of `load balancer` is to enable `session persistence`. This is useful when the clients need the same server to accept and respond to all requests.
 
-
-
-
-
+### Configure nginx as reverse proxy
+Before we can setup a proxy or a load balancer in NGINX, we need to define the backend servers that NGINX will be connecting to. This is where the upstream directives come into play. If we consider NGINX's configuration there are certain contenxt where we can apply directives. We can apply them at the `global context` that affects all of nginx. The `http context` for items that work with the http protocol and inside the http context, `server` and `location` context for example that specifically configure virtual hosts and the URI's used to access them.
+```
+http {
+  ...
+  server {
+    ...
+  }
+  ...
+  location {
+    ...
+  }
+  ...
+}
+```
+`Upstreams` are defined in `http` context. This is useful so that one upstream can be defined and then reused by multiple servers also defined in the http context. **As a side note, we refer to these resources as upstream because, in a flow of web request the resources would be upstream from the NGINX and the client.**
