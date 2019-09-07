@@ -221,3 +221,117 @@ Options:
 ```
 6. `nginx -t` - test if nginx configuration is good. It also warns the user if there is any syntactical errors.
 7. `nginx -T | less` - test if nginx configuration is good, and dump it to stdout. We can use pager like `less` to see the output page by page.
+
+## /etc/nginx/nginx.conf
+It is rarely required to edit `nginx.conf` file.
+```
+cat nginx.conf
+
+user www-data;
+worker_processes auto;
+pid /run/nginx.pid;
+include /etc/nginx/modules-enabled/*.conf;
+
+events {
+	worker_connections 768;
+	# multi_accept on;
+}
+
+http {
+
+	##
+	# Basic Settings
+	##
+
+	sendfile on;
+	tcp_nopush on;
+	tcp_nodelay on;
+	keepalive_timeout 65;
+	types_hash_max_size 2048;
+	# server_tokens off;
+
+	# server_names_hash_bucket_size 64;
+	# server_name_in_redirect off;
+
+	include /etc/nginx/mime.types;
+	default_type application/octet-stream;
+
+	##
+	# SSL Settings
+	##
+
+	ssl_protocols TLSv1 TLSv1.1 TLSv1.2; # Dropping SSLv3, ref: POODLE
+	ssl_prefer_server_ciphers on;
+
+	##
+	# Logging Settings
+	##
+
+	access_log /var/log/nginx/access.log;
+	error_log /var/log/nginx/error.log;
+
+	##
+	# Gzip Settings
+	##
+
+	gzip on;
+
+	# gzip_vary on;
+	# gzip_proxied any;
+	# gzip_comp_level 6;
+	# gzip_buffers 16 8k;
+	# gzip_http_version 1.1;
+	# gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+	##
+	# Virtual Host Configs
+	##
+
+	include /etc/nginx/conf.d/*.conf;
+	include /etc/nginx/sites-enabled/*;
+}
+
+
+#mail {
+#	# See sample authentication script at:
+#	# http://wiki.nginx.org/ImapAuthenticateWithApachePhpScript
+# 
+#	# auth_http localhost/auth.php;
+#	# pop3_capabilities "TOP" "USER";
+#	# imap_capabilities "IMAP4rev1" "UIDPLUS";
+# 
+#	server {
+#		listen     localhost:110;
+#		protocol   pop3;
+#		proxy      on;
+#	}
+# 
+#	server {
+#		listen     localhost:143;
+#		protocol   imap;
+#		proxy      on;
+#	}
+#}
+```
+- `user www-data;` is a single line directive.
+- `events` and `http` are block directives that contain one or more single line directives.
+- Following directives configure the default log files.
+```
+access_log /var/log/nginx/access.log;
+error_log /var/log/nginx/error.log;
+```
+- Following include directives tell the main configuration file to process configuration files in other directories, particulary the `/etc/nginx/conf.d` and `/etc/nginx/sites-enabled` directories.
+```
+	include /etc/nginx/conf.d/*.conf;
+	include /etc/nginx/sites-enabled/*;
+```
+There are varying schools of thought on how additional configurations get added to nginx when it comes to these two directories. You'll notice that the `conf.d` directory has a wildcard for files ending in `.conf`, and sites-enabled directory has wildcard enabled for all files. So, one method to add configuration is to place file ending in the `.conf` in 
+`conf.d` directory. Another method is to place configurations in **`sites-available` directory and then link to them using a symlink from `sites-enabled` directory**. Let's take a look:
+```
+vagrant@vagrant:/etc/nginx/sites-enabled$ ls -la
+total 8
+drwxr-xr-x 2 root root 4096 Sep  6 19:29 .
+drwxr-xr-x 8 root root 4096 Sep  6 19:29 ..
+lrwxrwxrwx 1 root root   34 Sep  6 19:29 default -> /etc/nginx/sites-available/default
+```
+**We will be using `conf.d` directory for all our configuration files.**
