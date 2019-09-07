@@ -727,3 +727,6 @@ systemctl reload nginx
 ```
 
 5. Open the browser and enter `localhost/proxy`. The request will be routed to the application root URI.
+
+# Examples
+1. https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvii-deployment-on-linux
