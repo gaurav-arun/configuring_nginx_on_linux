@@ -659,3 +659,16 @@ systemctl reload nginx
 ```
 
 5. Reloading the page in the browser will show a warning because we are using a self signed certificate. But now all the requests are being served on https. Bingo!
+
+## Other features of nginx
+NGINX can also be configured as a `reverse proxy` or a `load balancer`. Watch this [video](https://www.linkedin.com/learning/learning-nginx/reverse-proxies-and-load-balancing?autoplay=true) for a great explanation.
+
+A `reverse proxy` applies to the case where there's is **only one server on the backend**. This could be a web application implemented in python or node.js, for example. Or it could be another web server running apache tomcat or even nginx. In these cases nginx is great at simplifying thing that might be harder to implement in other technologies like `ssl termination` and `logging`. NGINX proxies are also good for accelerating the response of backend servers by caching content.
+It also has capabilities to compress data which can reduce the amount of network bandwidth needed to fulfil a request.
+
+Acting as a `load balancer`, NGINX offers the same capabilites as a `reverse proxy`. But instead of only connecting to one server in the backend, a load balancer connects to multiple backend. This configuration is useful for applications that require more than one backend server to handler muliple clients or high volume of traffic, for example. With more than one server, a site can be more reliable. Another feature of `load balancer` is to enable `session persistence`. This is useful when the clients need the same server to accept and respond to all requests.
+
+
+
+
+
